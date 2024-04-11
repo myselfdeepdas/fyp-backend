@@ -123,11 +123,12 @@ const createLineItems = (
     if (!menuItem) {
       throw new Error(`Menu item not found: ${cartItem.menuItemId}`);
     }
+    const unitAmountInPaisa = menuItem.price * 100;
 
     const line_item: Stripe.Checkout.SessionCreateParams.LineItem = {
       price_data: {
         currency: "inr",
-        unit_amount: menuItem.price,
+        unit_amount: unitAmountInPaisa,
         product_data: {
           name: menuItem.name,
         },
@@ -147,6 +148,8 @@ const createSession = async (
   deliveryPrice: number,
   restaurantId: string
 ) => {
+  const deliveryPriceInPaisa = deliveryPrice * 100;
+
   const sessionData = await STRIPE.checkout.sessions.create({
     line_items: lineItems,
     shipping_options: [
@@ -155,7 +158,7 @@ const createSession = async (
           display_name: "Delivery",
           type: "fixed_amount",
           fixed_amount: {
-            amount: deliveryPrice,
+            amount: deliveryPriceInPaisa,
             currency: "inr",
           },
         },
